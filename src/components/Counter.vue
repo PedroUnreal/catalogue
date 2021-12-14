@@ -1,17 +1,10 @@
 <template>
-  <div v-if="localQty > 0" :class="classname">
+  <div v-if="qty > 0" :class="classname">
     <div class="quantity_inner">
-      <button @click="decreaseQty" class="bt_minus">
-        <svg viewBox="0 0 24 24">
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-      </button>
-      <div class="quantity">{{localQty}}</div>
+      <button @click="decreaseQty" class="bt_minus">-</button>
+      <div class="quantity">{{ qty }}</div>
       <button @click="increaseQty" class="bt_plus" :disabled="maxCountReached">
-        <svg viewBox="0 0 24 24">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
+        +
       </button>
     </div>
 
@@ -26,46 +19,33 @@ import { mapState } from "vuex";
 export default {
   name: "Counter",
   props: ["qty", "id", "update", "max", "classname"],
-  data() {
-    return {
-      localQty: 0,
-    };
-  },
-  created() {
-    this.localQty = this.qty;
-  },
-  updated() {
-    this.localQty = this.qty;
-  },
   computed: {
-    ...mapState(["basket"]),
+    ...mapState(["cart"]),
     maxCountReached: function () {
-      return this.localQty === this.max;
+      return this.qty === this.max;
     },
   },
   methods: {
     increaseQty() {
-      if (this.localQty === this.max) return;
+      if (this.qty === this.max) return;
 
-      this.localQty++;
       this.$store.commit("changeQty", {
-        qty: this.localQty,
+        qty: this.qty + 1,
         id: this.id,
       });
-      this.update !== undefined ? this.update() : "";
+
+      if (typeof this.update === "function") {
+        this.update(this.qty + 1);
+      }
     },
     decreaseQty() {
-      this.localQty--;
       this.$store.commit("changeQty", {
-        qty: this.localQty,
+        qty: this.qty - 1,
         id: this.id,
       });
-      this.update !== undefined ? this.update() : "";
-    },
-    setCurrentQty() {
-      this.basket.forEach((item) =>
-        item.id === this.id ? (this.localQty = item.qty) : ""
-      );
+      if (typeof this.update === "function") {
+        this.update(this.qty - 1);
+      }
     },
   },
 };
@@ -77,7 +57,7 @@ export default {
   flex-direction: row;
   align-items: center;
 }
-.basketCounter {
+.cartCounter {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -87,44 +67,47 @@ export default {
 }
 
 .quantity_inner {
-  transform: scale(0.7);
+  height: 40px;
   display: inline-flex;
+  align-items: center;
   border-radius: 26px;
-  border: 4px solid #d77206;
+  border: 3px solid #d77206;
+  margin-right: 15px;
+}
+
+.cartCounter .quantity_inner {
+  margin-bottom: 20px;
+  margin-right: 0;
 }
 
 .quantity_inner .bt_minus,
 .quantity_inner .bt_plus,
 .quantity_inner .quantity {
-  height: 40px;
-  width: 40px;
-  padding: 0;
   border: 0;
-  margin: 0;
   background: transparent;
   cursor: pointer;
   outline: 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #d77206;
 }
 
 .quantity_inner .quantity {
   width: 50px;
   text-align: center;
-  font-size: 30px;
-  font-weight: bold;
-  color: #d77206;
+  flex: 1;
 }
 
-.quantity_inner .bt_minus svg,
-.quantity_inner .bt_plus svg {
-  stroke: #d77206;
-  stroke-width: 4;
-  transition: 0.5s;
-  margin: 10px;
+.quantity_inner .bt_minus,
+.quantity_inner .bt_plus {
+  flex: 1;
+  padding: 10px;
+  transition: color 0.2s;
 }
 
-.quantity_inner .bt_minus:hover svg,
-.quantity_inner .bt_plus:hover:not(:disabled) svg {
-  stroke: #000;
+.quantity_inner .bt_minus:hover,
+.quantity_inner .bt_plus:hover:not(:disabled) {
+  color: #000;
 }
 
 button:disabled {

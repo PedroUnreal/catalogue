@@ -6,14 +6,14 @@
       <div class="price">{{ calcQty }} шт</div>
       <div>
         <Counter
-          class="basket"
+          class="cart"
           :qty="calcQty"
           :id="calcId"
           :max="maxCount"
-          classname="basketCounter"
+          classname="cartCounter"
         />
       </div>
-      <div class="price">Сумма: {{ calcQty * calcPrice }} руб</div>
+      <div class="price">Сумма: {{ sum }} руб</div>
     </div>
   </div>
 </template>
@@ -23,25 +23,28 @@ import { mapState } from "vuex";
 import Counter from "./Counter.vue";
 
 export default {
-  name: "ProductCard",
+  name: "CartProduct",
   components: { Counter },
   props: ["index"],
   computed: {
-    ...mapState(["basket"]),
+    ...mapState(["cart"]),
+    sum() {
+      return (this.calcQty * this.calcPrice).toFixed(2);
+    },
     description() {
-      return this.basket[this.index].description;
+      return this.cart[this.index].description;
     },
     calcPrice() {
-      return this.basket[this.index].price;
+      return this.cart[this.index].price;
     },
     calcQty() {
-      return this.basket[this.index].qty;
+      return this.cart[this.index].qty;
     },
     calcId() {
-      return this.basket[this.index].id;
+      return this.cart[this.index].id;
     },
     maxCount() {
-      return this.basket[this.index].count;
+      return this.cart[this.index].count;
     },
   },
 };
@@ -50,15 +53,13 @@ export default {
 <style scoped>
 .product {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
 }
+
 .price {
   justify-self: center;
   font-size: 1.2em;
   font-weight: 700;
-}
-.counter {
-  margin: -10px;
 }
 
 .description {

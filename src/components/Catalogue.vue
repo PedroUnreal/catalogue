@@ -1,25 +1,21 @@
 <template>
   <div>
-    <div v-if="this.basket.length > 0" class="order">
-      <router-link to="/basket" class="button" @click="hideProducts"
-        >Перейти к оформлению
-        <div class="counter-dot">{{ basket.length }}</div></router-link
-      >
+    <div v-if="this.cart.length > 0" class="order">
+      <router-link to="/cart" class="button">
+        Перейти к оформлению
+        <div class="counter-dot">{{ cart.length }}</div>
+      </router-link>
     </div>
-    <div v-if="visible">
+    <div>
       <h1>Каталог товаров по категориям</h1>
       <div v-for="group in getProductsByGroups" :key="group.id">
         <h2>{{ group.name }}</h2>
         <ProductCard
-          v-for="(product, index) in group.products"
+          v-for="product in group.products"
           :product="product"
           :key="product.id"
-          :index="index"
         />
       </div>
-    </div>
-    <div v-else>
-      <router-view />
     </div>
   </div>
 </template>
@@ -34,17 +30,17 @@ export default {
   },
   data() {
     return {
-      visible: true,
       activeBtn: "",
       interval: null,
     };
   },
   computed: {
-    ...mapState(["basket"]),
+    ...mapState(["cart"]),
     ...mapGetters(["getProductsByGroups"]),
   },
   mounted() {
     this.$store.dispatch("getNames");
+    this.$store.dispatch("getList");
 
     this.interval = setInterval(() => {
       this.$store.dispatch("getList");
@@ -53,30 +49,10 @@ export default {
   unmounted() {
     clearInterval(this.interval);
   },
-  methods: {
-    hideProducts() {
-      this.visible = false;
-    },
-  },
 };
 </script>
 
 <style scoped>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  color: #2c3e50;
-  background-color: #fafafa;
-  padding: 24px;
-  box-sizing: border-box;
-}
-
-html,
-body {
-  margin-bottom: 2px;
-}
-#app {
-  height: 100%;
-}
 .order {
   position: fixed;
   top: 0px;
@@ -91,15 +67,6 @@ body {
   padding-left: 20px;
 }
 
-.product-wrapper {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 10px;
-}
-
-* {
-  box-sizing: border-box;
-}
 .order .button {
   position: relative;
 }

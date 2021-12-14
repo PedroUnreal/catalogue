@@ -1,18 +1,19 @@
 <template>
   <div>
     <div class="product">
-      <div class="price" :class="priceStatus">{{ calcPrice }} руб</div>
-      <div class="description">{{ description }} (В наличии {{ product.count }} шт.)</div>
+      <div class="price" :class="priceStatus">{{ product.price }} руб</div>
+      <div class="name">
+        {{ product.name }} (В наличии {{ product.count }} шт.)
+      </div>
       <div class="botton-menu">
-        <button @click="putIntoBasket" type="button" class="button">
-          Добавить в корзину
+        <button @click="putIntoCart" type="button" class="button">
+          {{ qty > 0 ? "В корзине" : "Добавить в корзину" }}
         </button>
         <Counter
           classname="productCounter"
-          :qty="this.qty"
-          :id="this.id"
-          :key="key"
-          :update="this.update"
+          :qty="qty"
+          :id="product.id"
+          :update="updateQty"
           :max="product.count"
         />
       </div>
@@ -27,84 +28,55 @@ import Counter from "./Counter.vue";
 export default {
   name: "ProductCard",
   components: { Counter },
-  props: ["index", "product"],
+  props: ["product"],
   data() {
     return {
       qty: 0,
-      key: 0,
-      localPrice: this.product.price,
-      priceStatus: '', // up, down or equal
+      priceStatus: "", // red, green or empty
     };
   },
   created() {
-    this.setCurrentQty();
-  },
-  updated() {
-    this.setCurrentQty();
+    const addedToCart = this.cart.find(
+      (product) => product.id === this.product.id
+    );
+
+    if (addedToCart) {
+      this.qty = addedToCart.qty;
+    }
   },
   computed: {
-    ...mapState(["basket"]),
-    description() {
-      return this.product.name;
-    },
-    id() {
-      return this.product.id;
-    },
-    calcPrice() {
-      return this.product.price;
-      // return Math.floor((this.product.id / 27) * 2);
-    },
+    ...mapState(["cart"]),
   },
   watch: {
-    product: function(newValue, oldValue) {
-      console.log(newValue.price, 'newValue.price');
-      console.log(oldValue.price, 'oldValue.price');
-
+    product: function (newValue, oldValue) {
       if (newValue.price > oldValue.price) {
-        this.priceStatus = 'red';
+        this.priceStatus = "red";
       }
 
       if (newValue.price < oldValue.price) {
-        this.priceStatus = 'green';
+        this.priceStatus = "green";
       }
 
       if (newValue.price === oldValue.price) {
-        this.priceStatus = '';
+        this.priceStatus = "";
       }
-    }
+    },
   },
   methods: {
-    putIntoBasket() {
-      this.key++;
-      if (this.basket.findIndex((item) => item.id === this.id) === -1) {
-        this.$store.commit("putIntoBasket", {
-          description: this.description,
-          price: this.calcPrice,
-          id: this.id,
+    putIntoCart() {
+      if (this.qty === 0) {
+        this.$store.commit("putIntoCart", {
+          description: this.product.name,
+          price: this.product.price,
+          id: this.product.id,
           qty: 1,
           count: this.product.count,
         });
         this.qty = 1;
-      } 
-      
-      // else {
-      //   this.increaseQty();
-      // }
+      }
     },
-    increaseQty() {
-      this.qty++;
-      this.$store.commit("changeQty", {
-        qty: this.qty,
-        id: this.id,
-      });
-    },
-    setCurrentQty() {
-      this.basket.forEach((item) =>
-        item.id === this.id ? (this.qty = item.qty) : ""
-      );
-    },
-    update() {
-      this.qty = this.localQty;
+    updateQty(newQty) {
+      this.qty = newQty;
     },
   },
 };
@@ -115,16 +87,25 @@ export default {
   display: flex;
   position: relative;
   flex-direction: column;
-  padding-bottom: 5px;
-  padding-left: 5px;
-  border: 1px solid black;
+  padding: 10px;
+  border: 1px solid gray;
+  border-radius: 6px;
   margin-bottom: 10px;
+}
+
+.button {
+  min-width: 220px;
+  margin-right: 30px;
 }
 
 .botton-menu {
   display: flex;
   flex-direction: row;
   height: 50px;
+}
+
+.name, .price {
+  margin-bottom: 20px;
 }
 
 .price {
@@ -135,14 +116,9 @@ export default {
 
 .red {
   color: red;
-} 
+}
 
 .green {
   color: green;
-}
-
-.description {
-  height: 70px;
-  overflow: auto;
 }
 </style>

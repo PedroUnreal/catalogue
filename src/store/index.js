@@ -7,7 +7,7 @@ export default new Vuex.Store({
   state: () => ({
     list: null,
     groups: null,
-    basket: [],
+    cart: [],
   }),
   mutations: {
     setProductList: (state, newList) => {
@@ -16,14 +16,14 @@ export default new Vuex.Store({
     setGroupList: (state, groups) => {
       state.groups = groups;
     },
-    putIntoBasket: (state, newProduct) => {
-      state.basket.push(newProduct);
+    putIntoCart: (state, newProduct) => {
+      state.cart.push(newProduct);
     },
     changeQty: (state, { qty, id }) => {
-      state.basket.forEach((item, index) =>
+      state.cart.forEach((item, index) =>
         item.id === id
           ? qty === 0
-            ? state.basket.splice(index, 1)
+            ? state.cart.splice(index, 1)
             : (item.qty = qty)
           : ""
       );
@@ -32,8 +32,9 @@ export default new Vuex.Store({
   actions: {
     getList: (context) => {
       const list = require("../data/data.json");
-      console.log(list, 'list');
-      context.commit("setProductList", {...list});
+      // Явно создаем новый объект, так как по содержанию он не отличается от старого
+      // и вызова getProductsByGroups не происходит
+      context.commit("setProductList", { ...list });
     },
     getNames: (context) => {
       const groups = require("../data/names.json");
@@ -42,10 +43,12 @@ export default new Vuex.Store({
   },
   getters: {
     getTotal: (state) => {
-      return state.basket.reduce((accumulator, currentValue) => {
-        currentValue = currentValue.price * currentValue.qty;
-        return accumulator + currentValue;
-      }, 0);
+      return state.cart
+        .reduce((accumulator, currentValue) => {
+          currentValue = currentValue.price * currentValue.qty;
+          return accumulator + currentValue;
+        }, 0)
+        .toFixed(2);
     },
     getProductsByGroups: (state) => {
       const groups = [];
