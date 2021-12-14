@@ -31,7 +31,7 @@ export default {
   data() {
     return {
       activeBtn: "",
-      interval: null,
+      interval: null, // интервал запроса за списком товаров
     };
   },
   computed: {
@@ -39,9 +39,11 @@ export default {
     ...mapGetters(["getProductsByGroups"]),
   },
   mounted() {
+    // Первичные запросы за списком категорий и товаров
     this.$store.dispatch("getNames");
     this.$store.dispatch("getList");
 
+    // Обновление списка товаров каждые 15 секунд 
     this.interval = setInterval(() => {
       this.$store.dispatch("getList");
     }, 15000);

@@ -31,8 +31,8 @@ export default {
   props: ["product"],
   data() {
     return {
-      qty: 0,
-      priceStatus: "", // red, green or empty
+      qty: 0, // количество единиц товара в корзине
+      priceStatus: "", // статус цены: red, green or empty
     };
   },
   created() {
@@ -48,6 +48,7 @@ export default {
     ...mapState(["cart"]),
   },
   watch: {
+    // Отслеживание изменения цены товара
     product: function (newValue, oldValue) {
       if (newValue.price > oldValue.price) {
         this.priceStatus = "red";
@@ -63,6 +64,7 @@ export default {
     },
   },
   methods: {
+    // Добавление товара в корзину
     putIntoCart() {
       if (this.qty === 0) {
         this.$store.commit("putIntoCart", {
@@ -75,6 +77,7 @@ export default {
         this.qty = 1;
       }
     },
+    // Изменение количества товара в корзине
     updateQty(newQty) {
       this.qty = newQty;
     },

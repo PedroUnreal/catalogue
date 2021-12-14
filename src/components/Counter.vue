@@ -26,6 +26,7 @@ export default {
     },
   },
   methods: {
+    // Увеличить количество единиц товара на 1
     increaseQty() {
       if (this.qty === this.max) return;
 
@@ -38,11 +39,13 @@ export default {
         this.update(this.qty + 1);
       }
     },
+    // Уменьшить количество единиц товара на 1
     decreaseQty() {
       this.$store.commit("changeQty", {
         qty: this.qty - 1,
         id: this.id,
       });
+
       if (typeof this.update === "function") {
         this.update(this.qty - 1);
       }

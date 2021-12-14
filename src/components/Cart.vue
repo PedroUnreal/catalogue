@@ -4,9 +4,7 @@
     <div v-if="this.cart.length === 0">
       <div>Пока корзина пуста</div>
       <router-link to="/">
-        <button class="button">
-          Назад к каталогу 
-        </button>
+        <button class="button">Назад к каталогу</button>
       </router-link>
     </div>
     <div v-else>
@@ -14,14 +12,11 @@
       <div class="sum">Сумма заказа: {{ getTotal }} руб</div>
       <div class="button-wrapper">
         <router-link to="/">
-          <button class="button">
-            Назад к каталогу 
-          </button>
+          <button class="button">Назад к каталогу</button>
         </router-link>
         <button class="button" @click="showCart">Сделать заказ</button>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -37,6 +32,7 @@ export default {
     ...mapGetters(["getTotal"]),
   },
   methods: {
+    // Вывод списка товаров в сформированном заказе
     showCart() {
       alert(JSON.stringify(this.cart));
     },

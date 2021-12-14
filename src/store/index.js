@@ -16,6 +16,8 @@ export default new Vuex.Store({
     setGroupList: (state, groups) => {
       state.groups = groups;
     },
+
+    // Работа с корзиной
     putIntoCart: (state, newProduct) => {
       state.cart.push(newProduct);
     },
@@ -30,18 +32,21 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    // Получение списка товаров
     getList: (context) => {
       const list = require("../data/data.json");
       // Явно создаем новый объект, так как по содержанию он не отличается от старого
       // и вызова getProductsByGroups не происходит
       context.commit("setProductList", { ...list });
     },
+    // Получение списка категорий
     getNames: (context) => {
       const groups = require("../data/names.json");
       context.commit("setGroupList", groups);
     },
   },
   getters: {
+    // Подсчет суммы всех товаров
     getTotal: (state) => {
       return state.cart
         .reduce((accumulator, currentValue) => {
@@ -50,6 +55,7 @@ export default new Vuex.Store({
         }, 0)
         .toFixed(2);
     },
+    // Получение структуры для UI каталога - сгруппированных по категориям товаров
     getProductsByGroups: (state) => {
       const groups = [];
 
@@ -87,6 +93,7 @@ export default new Vuex.Store({
   },
 });
 
+// Получение рандомного курса доллара от 20 до 80 руб/usd
 function getRandomRate() {
   return Math.random() * (80 - 20) + 20;
 }

@@ -29,6 +29,7 @@ export default {
   computed: {
     ...mapState(["cart"]),
     sum() {
+      // Общая стоимость всех единиц данного товара
       return (this.calcQty * this.calcPrice).toFixed(2);
     },
     description() {
