@@ -1,9 +1,7 @@
 <template>
   <div>
     <div class="product">
-      <img :src="src" />
       <div class="price">{{ calcPrice }} руб</div>
-      <div v-if="isLiked" class="star">Избранное</div>
       <div class="description">{{ description }}</div>
       <div class="botton-menu">
         <button @click="putIntoBasket" type="button" class="button">
@@ -15,9 +13,6 @@
           :key="key"
           :update="this.update"
         />
-        <button @click="putIntoLiked" type="button" class="liked">
-          {{ isLiked ? "Удалить из избранного" : "Добавить в избранное" }}
-        </button>
       </div>
     </div>
   </div>
@@ -30,47 +25,39 @@ import Counter from "./Counter.vue";
 export default {
   name: "ProductCard",
   components: { Counter },
-  props: ["index"],
+  props: ["index", "product"],
   data() {
     return {
-      src: "",
       qty: 0,
       key: 0,
     };
   },
   created() {
-    this.calcsrc();
     this.setCurrentQty();
   },
   updated() {
     this.setCurrentQty();
   },
   computed: {
-    ...mapState(["list", "basket"]),
+    ...mapState(["basket"]),
     description() {
-      return this.list[this.index].description;
+      return this.product.name;
     },
     id() {
-      return this.list[this.index].id;
-    },
-    isLiked() {
-      return this.list[this.index].liked;
+      return this.product.id;
     },
     calcPrice() {
-      return Math.floor((this.list[this.index].id / 27) * 2);
+      return this.product.price;
+      // return Math.floor((this.product.id / 27) * 2);
     },
   },
   methods: {
-    calcsrc() {
-      this.src = require(`../assets/images/${this.index}.webp`);
-    },
     putIntoBasket() {
       this.key++;
       if (this.basket.findIndex((item) => item.id === this.id) === -1) {
         this.$store.commit("putIntoBasket", {
           description: this.description,
           price: this.calcPrice,
-          pictureId: this.index,
           id: this.id,
           qty: 1,
         });
@@ -94,19 +81,6 @@ export default {
     update() {
       this.qty = this.localQty;
     },
-    putIntoLiked() {
-      if (!this.isLiked) {
-        this.$store.commit("putIntoLiked", {
-          liked: true,
-          id: this.id,
-        });
-      } else {
-        this.$store.commit("putIntoLiked", {
-          liked: false,
-          id: this.id,
-        });
-      }
-    },
   },
 };
 </script>
@@ -119,15 +93,9 @@ export default {
   padding-bottom: 5px;
   padding-left: 5px;
   border: 1px solid black;
-  border-top-left-radius: 12%;
-  border-top-right-radius: 12%;
+  margin-bottom: 10px;
 }
 
-.liked {
-  position: absolute;
-  top: 410px;
-  left: 220px;
-}
 .star {
   position: absolute;
   background-color: rgb(204, 21, 174);
@@ -150,10 +118,5 @@ export default {
 .description {
   height: 70px;
   overflow: auto;
-}
-
-img {
-  transform: scale(1.02);
-  margin-left: -2px;
 }
 </style>

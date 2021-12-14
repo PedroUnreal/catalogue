@@ -5,28 +5,19 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: () => ({
-    list: [],
+    list: null,
+    groups: null,
     basket: [],
   }),
   mutations: {
     setProductList: (state, newList) => {
       state.list = newList;
     },
+    setGroupList: (state, groups) => {
+      state.groups = groups;
+    },
     putIntoBasket: (state, newProduct) => {
       state.basket.push(newProduct);
-    },
-    putIntoLiked: (state, { liked, id }) => {
-      const likedItemIndex = state.list.findIndex((item) => item.id === id);
-
-      if (likedItemIndex !== -1) {
-        const newList = [...state.list];
-        newList.splice(likedItemIndex, 1, {
-          ...state.list[likedItemIndex],
-          liked: liked,
-        });
-
-        state.list = [...newList];
-      }
     },
     changeQty: (state, { qty, id }) => {
       state.basket.forEach((item, index) =>
@@ -39,12 +30,15 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    getList: async (context) => {
-      let list = await fetch(
-        "https://random-data-api.com/api/food/random_food?size=12"
-      );
-      list = await list.json();
+    getList: (context) => {
+      const list = require("../data/data.json");
+      console.log(list, 'list');
       context.commit("setProductList", list);
+    },
+    getNames: (context) => {
+      const groups = require("../data/names.json");
+      console.log('grooopus');
+      context.commit("setGroupList", groups);
     },
   },
   getters: {
@@ -54,12 +48,39 @@ export default new Vuex.Store({
         return accumulator + currentValue;
       }, 0);
     },
+    getProductsByGroups: (state) => {
+      const groups = [];
+
+      if (state.list && state.groups) {
+        const goods = state.list.Value.Goods;
+
+        Object.entries(state.groups).forEach(([groupId, groupValue]) => {
+          const productsInGroup = goods.reduce((accum, product) => {
+            if (product.G === parseInt(groupId)) {
+              const productInGroup = groupValue.B[product.T];
+
+              accum.push({
+                id: product.T,
+                name: productInGroup.N,
+                price: product.C,
+                count: product.P,
+              });
+            }
+            return accum;
+          }, []);
+
+          if (productsInGroup.length > 0) {
+            groups.push({
+              id: groupId,
+              name: groupValue.G,
+              products: productsInGroup,
+            });
+          }
+
+        });
+      }
+
+      return groups;
+    },
   },
 });
-
-// {"id":3603,
-// "uid":"96eadfcb-f7e8-4fe4-8a3e-3477596da18b",
-// "dish":"Pasta with Tomato and Basil",
-// "description":"Three eggs with cilantro, tomatoes, onions, avocados and melted Emmental cheese. With a side of roasted potatoes, and your choice of toast or croissant.",
-// "ingredient":"Elderberry",
-// "measurement":"1/2 cup"}

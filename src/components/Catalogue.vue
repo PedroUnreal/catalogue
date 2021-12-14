@@ -1,22 +1,22 @@
 <template>
   <div>
-    <div v-if="this.basket.length > 0 || isLiked" class="order">
+    <div v-if="this.basket.length > 0" class="order">
       <router-link to="/basket" class="button" @click="hideProducts"
         >Перейти к оформлению
         <div class="counter-dot">{{ basket.length }}</div></router-link
       >
-      <div class="liked">
-        <router-link to="/liked" class="button" @click="hideProducts"
-          >Перейти к избранному</router-link
-        >
-      </div>
     </div>
-    <div v-if="visible" class="product-wrapper">
-      <ProductCard
-        v-for="(item, index) in list"
-        :key="item.id"
-        :index="index"
-      />
+    <div v-if="visible">
+      <h1>Каталог товаров по категориям</h1>
+      <div v-for="group in getProductsByGroups" :key="group.id">
+        <h2>{{ group.name }}</h2>
+        <ProductCard
+          v-for="(product, index) in group.products"
+          :product="product"
+          :key="product.id"
+          :index="index"
+        />
+      </div>
     </div>
     <div v-else>
       <router-view />
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapGetters } from "vuex";
 import ProductCard from "./ProductCard.vue";
 export default {
   name: "Catalogue",
@@ -39,18 +39,12 @@ export default {
     };
   },
   computed: {
-    ...mapState(["list", "basket"]),
-    isLiked() {
-      return this.list.some((item) => item.liked === true);
-    },
+    ...mapState(["basket"]),
+    ...mapGetters(["getProductsByGroups"]),
   },
   mounted() {
-    //   fetch("https://random-data-api.com/api/food/random_food?size=30")
-    //     .then((blob) => blob.json())
-    //     .then((result) => {
-    //       this.$store.dispatch("getList", result);
-    //     });
-    //this.$store.dispatch("getList");
+    this.$store.dispatch("getList");
+    this.$store.dispatch("getNames");
   },
   methods: {
     hideProducts() {
@@ -101,9 +95,6 @@ body {
 }
 .order .button {
   position: relative;
-}
-.liked {
-  margin-left: 20px;
 }
 
 .counter-dot {
