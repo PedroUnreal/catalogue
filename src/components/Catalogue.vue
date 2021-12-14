@@ -36,6 +36,7 @@ export default {
     return {
       visible: true,
       activeBtn: "",
+      interval: null,
     };
   },
   computed: {
@@ -43,8 +44,14 @@ export default {
     ...mapGetters(["getProductsByGroups"]),
   },
   mounted() {
-    this.$store.dispatch("getList");
     this.$store.dispatch("getNames");
+
+    this.interval = setInterval(() => {
+      this.$store.dispatch("getList");
+    }, 15000);
+  },
+  unmounted() {
+    clearInterval(this.interval);
   },
   methods: {
     hideProducts() {

@@ -4,7 +4,15 @@
       <div class="description">{{ description }}</div>
       <div class="price">{{ calcPrice }} руб</div>
       <div class="price">{{ calcQty }} шт</div>
-      <div><Counter :qty="calcQty" :id="calcId" class="counter" /></div>
+      <div>
+        <Counter
+          class="basket"
+          :qty="calcQty"
+          :id="calcId"
+          :max="maxCount"
+          classname="basketCounter"
+        />
+      </div>
       <div class="price">Сумма: {{ calcQty * calcPrice }} руб</div>
     </div>
   </div>
@@ -19,7 +27,7 @@ export default {
   components: { Counter },
   props: ["index"],
   computed: {
-    ...mapState(["list", "basket"]),
+    ...mapState(["basket"]),
     description() {
       return this.basket[this.index].description;
     },
@@ -31,6 +39,9 @@ export default {
     },
     calcId() {
       return this.basket[this.index].id;
+    },
+    maxCount() {
+      return this.basket[this.index].count;
     },
   },
 };

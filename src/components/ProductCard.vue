@@ -1,17 +1,19 @@
 <template>
   <div>
     <div class="product">
-      <div class="price">{{ calcPrice }} руб</div>
-      <div class="description">{{ description }}</div>
+      <div class="price" :class="priceStatus">{{ calcPrice }} руб</div>
+      <div class="description">{{ description }} (В наличии {{ product.count }} шт.)</div>
       <div class="botton-menu">
         <button @click="putIntoBasket" type="button" class="button">
           Добавить в корзину
         </button>
         <Counter
+          classname="productCounter"
           :qty="this.qty"
           :id="this.id"
           :key="key"
           :update="this.update"
+          :max="product.count"
         />
       </div>
     </div>
@@ -30,6 +32,8 @@ export default {
     return {
       qty: 0,
       key: 0,
+      localPrice: this.product.price,
+      priceStatus: '', // up, down or equal
     };
   },
   created() {
@@ -51,6 +55,24 @@ export default {
       // return Math.floor((this.product.id / 27) * 2);
     },
   },
+  watch: {
+    product: function(newValue, oldValue) {
+      console.log(newValue.price, 'newValue.price');
+      console.log(oldValue.price, 'oldValue.price');
+
+      if (newValue.price > oldValue.price) {
+        this.priceStatus = 'red';
+      }
+
+      if (newValue.price < oldValue.price) {
+        this.priceStatus = 'green';
+      }
+
+      if (newValue.price === oldValue.price) {
+        this.priceStatus = '';
+      }
+    }
+  },
   methods: {
     putIntoBasket() {
       this.key++;
@@ -60,11 +82,14 @@ export default {
           price: this.calcPrice,
           id: this.id,
           qty: 1,
+          count: this.product.count,
         });
         this.qty = 1;
-      } else {
-        this.increaseQty();
-      }
+      } 
+      
+      // else {
+      //   this.increaseQty();
+      // }
     },
     increaseQty() {
       this.qty++;
@@ -96,13 +121,6 @@ export default {
   margin-bottom: 10px;
 }
 
-.star {
-  position: absolute;
-  background-color: rgb(204, 21, 174);
-  top: 370px;
-  left: 290px;
-  border-radius: 10%;
-}
 .botton-menu {
   display: flex;
   flex-direction: row;
@@ -113,6 +131,14 @@ export default {
   margin-top: 11px;
   font-size: 1.2em;
   font-weight: 700;
+}
+
+.red {
+  color: red;
+} 
+
+.green {
+  color: green;
 }
 
 .description {

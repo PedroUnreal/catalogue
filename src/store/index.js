@@ -33,11 +33,10 @@ export default new Vuex.Store({
     getList: (context) => {
       const list = require("../data/data.json");
       console.log(list, 'list');
-      context.commit("setProductList", list);
+      context.commit("setProductList", {...list});
     },
     getNames: (context) => {
       const groups = require("../data/names.json");
-      console.log('grooopus');
       context.commit("setGroupList", groups);
     },
   },
@@ -53,6 +52,7 @@ export default new Vuex.Store({
 
       if (state.list && state.groups) {
         const goods = state.list.Value.Goods;
+        const rate = getRandomRate();
 
         Object.entries(state.groups).forEach(([groupId, groupValue]) => {
           const productsInGroup = goods.reduce((accum, product) => {
@@ -62,7 +62,7 @@ export default new Vuex.Store({
               accum.push({
                 id: product.T,
                 name: productInGroup.N,
-                price: product.C,
+                price: parseFloat((rate * product.C).toFixed(2)),
                 count: product.P,
               });
             }
@@ -76,7 +76,6 @@ export default new Vuex.Store({
               products: productsInGroup,
             });
           }
-
         });
       }
 
@@ -84,3 +83,7 @@ export default new Vuex.Store({
     },
   },
 });
+
+function getRandomRate() {
+  return Math.random() * (80 - 20) + 20;
+}

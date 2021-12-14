@@ -25,7 +25,7 @@ export default {
   name: "Basket",
   components: { BasketProduct },
   computed: {
-    ...mapState(["list", "basket"]),
+    ...mapState(["basket"]),
     ...mapGetters(["getTotal"]),
   },
   //props: ["index"],
